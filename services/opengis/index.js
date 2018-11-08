@@ -1,23 +1,32 @@
-const CONFIG = require('../../config')
+const {SERVICES} = require('../../config')
 const Park = require("../../models/Park")
+const Service = require("../")
+const cache = require('memory-cache');
 
-class OpenGISService {
+class OpenGISService extends Service{
 	
-	constructor(){
-		
+	constructor(params){
+		super(SERVICES.OPENGIS, params);
+		this.cacheKey = SERVICES.OPENGIS.CACHE_KEY;
 	}
 	
 	async retrieveParks(){
-		const res = await fetch(CONFIG.APIS.PARKS)
-		const data = await res.json();  
-		const parks = data.features;
-		return data.features;
+		if(!cache.get(this.cacheKey)){
+			const res = await fetch(SERVICES.OPENGIS.API_STRING)
+			const data = await res.json();  
+			const parks = data.features;
+			cache.put(this.cacheKey, parks);
+			return parks;
+		}
+
+		return await cache.get(this.cacheKey);
 	}
 	
-	async getAllParks(compact){
+	async getAllParks(){
 		const rawParks = await this.retrieveParks();
-		const parks = this.constructor.santizeParkData(rawParks, compact);
-		return parks;
+		const parks = this.constructor.santizeParkData(rawParks);
+		const filteredParks = this.applyFilters(parks);
+		return filteredParks;
 	}
 	
 	async getParkById(id){
@@ -28,25 +37,23 @@ class OpenGISService {
 		return filteredPark;
 	}
 	
-	async getParkByName(name){
-		const parks = await this.getAllParks();
-		const filteredPark = parks.filter((park)=>{
-			return park.name.includes(name);
-		})
-		return filteredPark;
-	}
-	
 	static santizeParkData(rawParks, isCompact){
 		const uniqueParks = rawParks.reduce((santizedParks, rawPark)=> {
-			const park = santizedParks[rawPark.attributes.OBJECTID] || new Park(isCompact);
+			const park = santizedParks[rawPark.attributes.OBJECTID] || new Park(this.compact);
 			park.parse(rawPark);
 			santizedParks[rawPark.attributes.OBJECTID] = park;
 			return santizedParks;
 		}, {});
 
 		const displayParks = Object.keys(uniqueParks).map((parkId)=> {
-			const {compact, ...displayPark} = uniqueParks[parkId]
-			return displayPark;		
+			
+			const returnObj = {};
+			returnObj["id"] = uniqueParks[parkId]["id"]
+			for(const key of SERVICES.OPENGIS.COMPACT_VIEW_FIELDS){
+				returnObj[key] = uniqueParks[parkId][key]
+			}
+
+			return returnObj;		
 		});
 		return displayParks;
 	}

@@ -3,17 +3,15 @@ const Case = require('case');
 const {NameCase} = require('../utilities/StringUtils')
 
 class Park{
-	constructor(compact){
+	constructor(){
 		this.id = 0,
 		this.name='';
 		this.type = '';
 		this.address = '';
-		this.compact = compact;
 	}
 	
 	static determineAmenities(attributes){
 		const amenities = CONFIG.PARK_DATA.AMENITIES;
-
 		return amenities.filter((amenity)=>{
 			return attributes[amenity] === "Yes"
 		});
@@ -48,7 +46,9 @@ class Park{
 	}
 	
 	parse(park){
-		const amenities = this.constructor.determineAmenities(park);
+
+		const amenities = this.constructor.determineAmenities(park.attributes);
+		//console.log("amentites", amenities)
 		
 		const {
 			OBJECTID, 

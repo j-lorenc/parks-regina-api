@@ -2,13 +2,12 @@ var express = require('express');
 var router = express.Router();
 var OpenGISService = require('../services/opengis')
 
-const GisService = new OpenGISService();
+
 
 router.get('/parks', async (req, res, next) => {
 	try{
-		const compact = req.query.compact === 'true';
-		const filters = [{name:req.query.name},{type:req.query.type}];
-		const parks = await GisService.getAllParks(compact);
+		const GisService = new OpenGISService(req.query);
+		const parks = await GisService.getAllParks();
   		res.json(parks);
 	}catch(err){
 		res.json({
@@ -19,6 +18,7 @@ router.get('/parks', async (req, res, next) => {
 
 router.get('/park/:id', async (req, res, next) => {
 	try{
+		const GisService = new OpenGISService();
 		let parks = await GisService.getParkById(req.params.id)
   		res.json(parks);
 	}catch(err){
