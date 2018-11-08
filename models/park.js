@@ -3,11 +3,12 @@ const Case = require('case');
 const {NameCase} = require('../utilities/StringUtils')
 
 class Park{
-	constructor(){
+	constructor(compact){
 		this.id = 0,
 		this.name='';
 		this.type = '';
 		this.address = '';
+		this.compact = compact;
 	}
 	
 	static determineAmenities(attributes){
@@ -73,11 +74,10 @@ class Park{
 		   this.amenities = amenities; 
 	   	}
 		
-		if(this.compact!==true){
-			this.area = AREA;
-			this.length = LENGTH;
-			this.coords = COORDS[0];
-		}
+		this.area = AREA;
+		this.length = LENGTH;
+		this.coords = COORDS[0];
+		
 	}
 	
 	

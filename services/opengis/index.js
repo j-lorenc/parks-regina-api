@@ -24,7 +24,7 @@ class OpenGISService extends Service{
 	
 	async getAllParks(){
 		const rawParks = await this.retrieveParks();
-		const parks = this.constructor.santizeParkData(rawParks);
+		const parks = this.constructor.santizeParkData(rawParks, this.compact);
 		const filteredParks = this.applyFilters(parks);
 		return filteredParks;
 	}
@@ -37,7 +37,7 @@ class OpenGISService extends Service{
 		return filteredPark;
 	}
 	
-	static santizeParkData(rawParks, isCompact){
+	static santizeParkData(rawParks,compact){
 		const uniqueParks = rawParks.reduce((santizedParks, rawPark)=> {
 			const park = santizedParks[rawPark.attributes.OBJECTID] || new Park(this.compact);
 			park.parse(rawPark);
@@ -47,11 +47,16 @@ class OpenGISService extends Service{
 
 		const displayParks = Object.keys(uniqueParks).map((parkId)=> {
 			
-			const returnObj = {};
-			returnObj["id"] = uniqueParks[parkId]["id"]
-			for(const key of SERVICES.OPENGIS.COMPACT_VIEW_FIELDS){
-				returnObj[key] = uniqueParks[parkId][key]
+			let returnObj = {};
+			if(compact){
+				returnObj["id"] = uniqueParks[parkId]["id"]
+				for(const key of SERVICES.OPENGIS.COMPACT_VIEW_FIELDS){
+					returnObj[key] = uniqueParks[parkId][key]
+				}
+			}else{
+				returnObj = uniqueParks[parkId]
 			}
+
 
 			return returnObj;		
 		});

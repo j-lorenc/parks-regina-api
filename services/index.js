@@ -5,7 +5,7 @@ class Service {
 		this.compactViewFields = SERVICE.COMPACT_VIEW_FIELDS;
 		this.filters = SERVICE.FILTERS;
 		this.params = params || {};
-		this.compact = params["compact"] === true;
+		this.compact = params["compact"] === 'true';
 	}
 	
 	get queryStringFilters(){
