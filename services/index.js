@@ -1,5 +1,3 @@
-const qs = require("qs");
-
 class Service {
 	constructor(SERVICE, params){
 		this.compactViewFields = SERVICE.COMPACT_VIEW_FIELDS;
