@@ -23,33 +23,49 @@ class Service {
 	applyFilters(unfilteredDataList){
 		
 		const queryStringFilters = this.queryStringFilters;
-		
 		const filteredData  = unfilteredDataList.filter((unfilteredDataRow)=>{
+
 			for(const queryStringFilter of queryStringFilters){
-				const queryStringFilterKey = Object.keys(queryStringFilter)[0];
-				
-				if(typeof(queryStringFilter[queryStringFilterKey]) === "string" ){
-					if(unfilteredDataRow[queryStringFilterKey] !== queryStringFilter[queryStringFilterKey]){
-						return false;
-					}
-				}else if(typeof(queryStringFilter[queryStringFilterKey]) === "object"){
-					const isIncludesFilter = queryStringFilter[queryStringFilterKey]["inc"];
-					
-					if(isIncludesFilter){
-						for(const listItem of isIncludesFilter){
-							if(!unfilteredDataRow[queryStringFilterKey] || !unfilteredDataRow[queryStringFilterKey].includes(listItem)){
-								return false;
-							}
-						}	
-					}
-					
-				}
-				
-				
+				return this._shouldApplyFilter(queryStringFilter, unfilteredDataRow)
 			}
 			return true;
 		})
 		return filteredData;
+	}
+
+	_shouldApplyFilter(filterFromQueryString, unfilteredDataRow){
+		const keyToFilterOn = Object.keys(filterFromQueryString)[0];
+		const filter = filterFromQueryString[keyToFilterOn]
+
+		if(typeof(filter) === "string" ){
+			if(!this._isEqual(unfilteredDataRow[keyToFilterOn], filter)){
+				return false;
+			}
+		}else if(typeof(filterFromQueryString[keyToFilterOn]) === "object"){
+			const includesFilterList = filterFromQueryString[keyToFilterOn]["inc"];
+
+			if(includesFilterList){
+				if(!this._isIncluded(unfilteredDataRow[keyToFilterOn],includesFilterList)){
+					return false;
+				}
+			}
+		}
+
+		return true;
+	}
+
+	_isIncluded(listToLookFor = [], listToLookIn){
+		for(const listItem of listToLookIn){
+			if(!listToLookFor || !listToLookFor.includes(listItem)){
+				return false;
+			}
+		}
+		return true;
+	}
+
+	_isEqual(a, b){
+		if(!b) return false;
+		return a == b;
 	}
 }
 

@@ -31,35 +31,42 @@ class OpenGISService extends Service{
 	
 	async getParkById(id){
 		const parks = await this.getAllParks();
-		const filteredPark = parks.filter((park)=>{
+		const filteredPark = parks.find((park)=>{
 			return park.id === Number(id);
 		})
 		return filteredPark;
 	}
 	
-	static santizeParkData(rawParks,compact){
-		const uniqueParks = rawParks.reduce((santizedParks, rawPark)=> {
+	static uniquifyParks(rawParks){
+		return rawParks.reduce((santizedParks, rawPark)=> {
 			const park = santizedParks[rawPark.attributes.OBJECTID] || new Park(this.compact);
 			park.parse(rawPark);
 			santizedParks[rawPark.attributes.OBJECTID] = park;
 			return santizedParks;
 		}, {});
+	}
 
+	static transformToDisplayPark(uniqueParks, compact){
 		const displayParks = Object.keys(uniqueParks).map((parkId)=> {
-			
-			let returnObj = {};
 			if(compact){
-				returnObj["id"] = uniqueParks[parkId]["id"]
+				const returnObj = {
+					id: uniqueParks[parkId]["id"]
+				};
 				for(const key of SERVICES.OPENGIS.COMPACT_VIEW_FIELDS){
 					returnObj[key] = uniqueParks[parkId][key]
 				}
+				return returnObj;
 			}else{
-				returnObj = uniqueParks[parkId]
+				return uniqueParks[parkId]
 			}
-
-
-			return returnObj;		
 		});
+		return displayParks;
+	}
+
+	static santizeParkData(rawParks, compact){
+		const uniqueParks = OpenGISService.uniquifyParks(rawParks);
+		const displayParks = OpenGISService.transformToDisplayPark(uniqueParks, compact);
+
 		return displayParks;
 	}
 }

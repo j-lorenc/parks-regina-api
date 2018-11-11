@@ -18,7 +18,7 @@ router.get('/parks', async (req, res, next) => {
 
 router.get('/park/:id', async (req, res, next) => {
 	try{
-		const GisService = new OpenGISService();
+		const GisService = new OpenGISService(req.query);
 		let parks = await GisService.getParkById(req.params.id)
   		res.json(parks);
 	}catch(err){
