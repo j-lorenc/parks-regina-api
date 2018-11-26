@@ -1,6 +1,9 @@
 const CONFIG = require('../config')
 const Case = require('case');
 const {NameCase} = require('../utilities/StringUtils')
+const proj4 = require('proj4');
+const geolib = require('geolib');
+
 
 class Park{
 	constructor(compact){
@@ -36,12 +39,16 @@ class Park{
 	
 	set coords(coords){
 		const geometry = {...this.geometry};
+        geometry.shape = {...geometry.shape};
 		geometry.coords = coords.map((coord)=>{
+            const latLng = proj4(CONFIG.SERVICES.OPENGIS.SOURCE_PROJECTION, CONFIG.SERVICES.OPENGIS.LAT_LNG_PROJECTION, coord);
 			return {
-				latitude:coord[0],
-				longitude:coord[1]
+				latitude:latLng[1],
+				longitude:latLng[0]
 			}
-		})
+		});
+
+        geometry.shape.center = geolib.getCenterOfBounds(geometry.coords);
 		
 		this.geometry = geometry;
 	}

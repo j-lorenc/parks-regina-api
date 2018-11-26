@@ -1,11 +1,14 @@
 const CONFIG = {
-	
-	SERVICES: {
+
+    SERVICES: {
 		OPENGIS: {
 			API_STRING: "https://opengis.regina.ca/arcgis/rest/services/CGISViewer/Parks/MapServer/0/query?f=json&where=1%3D1&outFields=*&outSR=3857",
 			CACHE_KEY: 'parks',
 			FILTERS: ["name", "type", "address", "amenities"],
-			COMPACT_VIEW_FIELDS: ["name", "type", "address", "amenities"]
+			COMPACT_VIEW_FIELDS: ["name", "type", "address", "amenities"],
+            SOURCE_PROJECTION: `+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0
+                                    +k=1.0 +units=m +nadgrids=@null +wktext  +no_defs`,
+            LAT_LNG_PROJECTION: `+proj=longlat +datum=WGS84 +no_defs`
 		}
 	},
 	
