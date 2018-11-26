@@ -1,5 +1,5 @@
 const {SERVICES} = require('../../config')
-const Park = require("../../models/Park")
+const Park = require("../../models/park")
 const Service = require("../")
 const cache = require('memory-cache');
 
